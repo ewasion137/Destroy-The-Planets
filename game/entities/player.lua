@@ -1,48 +1,38 @@
 local player = {
-    x = 400,
-    y = 300,
+    gridX = 64,
+    gridY = -150, -- Стартуем далеко в космосе
     vx = 0,
     vy = 0,
-    speed = 500,    -- сила тяги
-    friction = 0.95, -- трение (чем меньше, тем больше заносит)
-    hp = 100,
-    maxHp = 100,
-    size = 20
+    speed = 50,
+    friction = 0.92,
+    hp = 100
 }
 
-function player.update(dt)
-    -- Управление на WASD или стрелки
-    if love.keyboard.isDown("w") or love.keyboard.isDown("up") then
-        player.vy = player.vy - player.speed * dt
-    end
-    if love.keyboard.isDown("s") or love.keyboard.isDown("down") then
-        player.vy = player.vy + player.speed * dt
-    end
-    if love.keyboard.isDown("a") or love.keyboard.isDown("left") then
-        player.vx = player.vx - player.speed * dt
-    end
-    if love.keyboard.isDown("d") or love.keyboard.isDown("right") then
-        player.vx = player.vx + player.speed * dt
-    end
+function player.update(self, dt)
+    if love.keyboard.isDown("a") then self.vx = self.vx - self.speed * dt end
+    if love.keyboard.isDown("d") then self.vx = self.vx + self.speed * dt end
+    if love.keyboard.isDown("w") then self.vy = self.vy - self.speed * dt end
+    if love.keyboard.isDown("s") then self.vy = self.vy + self.speed * dt end
 
-    -- Применяем трение
-    player.vx = player.vx * player.friction
-    player.vy = player.vy * player.friction
+    self.vx = self.vx * self.friction
+    self.vy = self.vy * self.friction
 
-    -- Обновляем позицию
-    player.x = player.x + player.vx * dt
-    player.y = player.y + player.vy * dt
+    self.gridX = self.gridX + self.vx
+    self.gridY = self.gridY + self.vy
+
+    -- Зацикливание горизонтали
+    if self.gridX > 128 then self.gridX = self.gridX - 128 end
+    if self.gridX < 0 then self.gridX = self.gridX + 128 end
 end
 
-function player.draw()
-    love.graphics.setColor(0, 1, 0.5) -- Неоново-зеленый
-    love.graphics.rectangle("fill", player.x - player.size/2, player.y - player.size/2, player.size, player.size)
-    
-    -- Рисуем полоску ХП над головой
-    love.graphics.setColor(1, 0, 0)
-    love.graphics.rectangle("fill", player.x - 20, player.y - 30, 40, 5)
-    love.graphics.setColor(0, 1, 0)
-    love.graphics.rectangle("fill", player.x - 20, player.y - 30, 40 * (player.hp / player.maxHp), 5)
+function player.draw(self, planet)
+    local px, py, angle = planet:to_polar(self.gridX, self.gridY)
+    love.graphics.setColor(0, 1, 0.5)
+    love.graphics.push()
+    love.graphics.translate(px, py)
+    love.graphics.rotate(angle + math.pi/2)
+    love.graphics.rectangle("fill", -8, -8, 16, 16)
+    love.graphics.pop()
 end
 
 return player
