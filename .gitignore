@@ -1,0 +1,11 @@
+l.lnk
+.DS_Store
+Thumbs.db
+.vscode/
+*.save
+*.log
+dist/
+build/
+*.luc
+*.luac
+*.love
